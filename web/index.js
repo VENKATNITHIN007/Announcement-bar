@@ -40,54 +40,6 @@ app.post(
 // If you are adding routes outside of the /api path, remember to
 // also add a proxy rule for them in web/frontend/vite.config.js
 
-app.use("/api/*", async (req, res, next) => {
-  console.log(`\n\n=== DEEP DEBUG MIDDLEWARE ===`);
-  console.log(`URL: ${req.originalUrl}`);
-  
-  if (req.headers.authorization) {
-    try {
-      // 1. Get Session ID
-      const sessionId = await shopify.api.session.getCurrentId({
-        isOnline: false,
-        rawRequest: req,
-        rawResponse: res,
-      });
-      console.log(`1. Session ID from Token:`, sessionId);
-
-      // 2. Load Session
-      if (sessionId) {
-        const session = await shopify.config.sessionStorage.loadSession(sessionId);
-        console.log(`2. Session found in MemoryStorage:`, !!session);
-        
-        if (session) {
-          // 3. Check Scopes
-          const isActive = session.isActive(shopify.api.config.scopes);
-          console.log(`3. Session isActive (scopes match):`, isActive);
-          console.log(`   - Session scopes:`, session.scope);
-          console.log(`   - Expected scopes:`, shopify.api.config.scopes);
-          
-          // 4. Validate Access Token (GraphQL request)
-          if (isActive) {
-            try {
-              const client = new shopify.api.clients.Graphql({ session });
-              await client.request(`query { shop { name } }`);
-              console.log(`4. hasValidAccessToken (GraphQL query): TRUE`);
-            } catch (err) {
-              console.log(`4. hasValidAccessToken (GraphQL query): FALSE - Error:`, err.message);
-            }
-          }
-        }
-      }
-    } catch(e) {
-      console.log(`DEBUG ERROR:`, e.message);
-    }
-  } else {
-    console.log(`Authorization Header MISSING`);
-  }
-  console.log(`========================\n\n`);
-  next();
-});
-
 app.use("/api/*", shopify.validateAuthenticatedSession());
 
 app.use(express.json());
