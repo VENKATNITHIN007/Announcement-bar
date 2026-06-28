@@ -40,6 +40,24 @@ app.post(
 // If you are adding routes outside of the /api path, remember to
 // also add a proxy rule for them in web/frontend/vite.config.js
 
+app.use("/api/*", (req, res, next) => {
+  console.log(`\n\n=== DEBUG MIDDLEWARE ===`);
+  console.log(`URL: ${req.originalUrl}`);
+  console.log(`Authorization Header:`, req.headers.authorization ? "PRESENT" : "MISSING");
+  if (req.headers.authorization) {
+    const token = req.headers.authorization.replace("Bearer ", "");
+    console.log(`Token Prefix:`, token.substring(0, 20) + "...");
+    try {
+      const payload = Buffer.from(token.split('.')[1], 'base64').toString();
+      console.log(`JWT Payload:`, payload);
+    } catch(e) {
+      console.log(`JWT Decode Error:`, e.message);
+    }
+  }
+  console.log(`========================\n\n`);
+  next();
+});
+
 app.use("/api/*", shopify.validateAuthenticatedSession());
 
 app.use(express.json());
