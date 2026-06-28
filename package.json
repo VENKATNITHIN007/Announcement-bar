@@ -12,10 +12,10 @@
     "deploy": "shopify app deploy",
     "start": "node web/index.js"
   },
-  "dependencies": {},
-  "devDependencies": {
+  "dependencies": {
     "@shopify/cli": "^4.3.0"
   },
+  "devDependencies": {},
   "author": "nobita",
   "private": true,
   "workspaces": [
