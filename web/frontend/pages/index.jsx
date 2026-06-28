@@ -20,30 +20,40 @@ export default function HomePage() {
 
   // 1. Fetch the current saved announcement on load
   useEffect(() => {
-    fetch("/api/announcement")
-      .then((res) => {
+    const fetchAnnouncement = async () => {
+      try {
+        const headers = {};
+        if (window.shopify) {
+          const token = await window.shopify.idToken();
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+        const res = await fetch("/api/announcement", { headers });
         if (!res.ok) throw new Error("Failed to fetch");
-        return res.json();
-      })
-      .then((data) => {
+        const data = await res.json();
         setAnnouncement(data.text || "");
         setIsLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Error fetching announcement:", err);
         setIsLoading(false);
-      });
+      }
+    };
+    fetchAnnouncement();
   }, []);
 
   // 2. Handle form submission (Save button)
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      const headers = {
+        "Content-Type": "application/json",
+      };
+      if (window.shopify) {
+        const token = await window.shopify.idToken();
+        headers["Authorization"] = `Bearer ${token}`;
+      }
       const response = await fetch("/api/announcement", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers,
         body: JSON.stringify({ text: announcement }),
       });
 
