@@ -18,6 +18,10 @@ const shopify = shopifyApp({
   api: {
     apiVersion: LATEST_API_VERSION,
     restResources,
+    // Explicitly set scopes to empty array to match shopify.app.toml (scopes = "").
+    // The SCOPES env var on Render was set to "write_products" which caused a mismatch
+    // with the empty scopes Shopify actually grants, creating an infinite OAuth redirect loop.
+    scopes: [],
     future: {
       customerAddressDefaultFix: true,
       lineItemBilling: true,
