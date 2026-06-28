@@ -40,19 +40,49 @@ app.post(
 // If you are adding routes outside of the /api path, remember to
 // also add a proxy rule for them in web/frontend/vite.config.js
 
-app.use("/api/*", (req, res, next) => {
-  console.log(`\n\n=== DEBUG MIDDLEWARE ===`);
+app.use("/api/*", async (req, res, next) => {
+  console.log(`\n\n=== DEEP DEBUG MIDDLEWARE ===`);
   console.log(`URL: ${req.originalUrl}`);
-  console.log(`Authorization Header:`, req.headers.authorization ? "PRESENT" : "MISSING");
+  
   if (req.headers.authorization) {
-    const token = req.headers.authorization.replace("Bearer ", "");
-    console.log(`Token Prefix:`, token.substring(0, 20) + "...");
     try {
-      const payload = Buffer.from(token.split('.')[1], 'base64').toString();
-      console.log(`JWT Payload:`, payload);
+      // 1. Get Session ID
+      const sessionId = await shopify.api.session.getCurrentId({
+        isOnline: false,
+        rawRequest: req,
+        rawResponse: res,
+      });
+      console.log(`1. Session ID from Token:`, sessionId);
+
+      // 2. Load Session
+      if (sessionId) {
+        const session = await shopify.config.sessionStorage.loadSession(sessionId);
+        console.log(`2. Session found in MemoryStorage:`, !!session);
+        
+        if (session) {
+          // 3. Check Scopes
+          const isActive = session.isActive(shopify.api.config.scopes);
+          console.log(`3. Session isActive (scopes match):`, isActive);
+          console.log(`   - Session scopes:`, session.scope);
+          console.log(`   - Expected scopes:`, shopify.api.config.scopes);
+          
+          // 4. Validate Access Token (GraphQL request)
+          if (isActive) {
+            try {
+              const client = new shopify.api.clients.Graphql({ session });
+              await client.request(`query { shop { name } }`);
+              console.log(`4. hasValidAccessToken (GraphQL query): TRUE`);
+            } catch (err) {
+              console.log(`4. hasValidAccessToken (GraphQL query): FALSE - Error:`, err.message);
+            }
+          }
+        }
+      }
     } catch(e) {
-      console.log(`JWT Decode Error:`, e.message);
+      console.log(`DEBUG ERROR:`, e.message);
     }
+  } else {
+    console.log(`Authorization Header MISSING`);
   }
   console.log(`========================\n\n`);
   next();
