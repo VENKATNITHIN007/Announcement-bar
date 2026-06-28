@@ -22,7 +22,14 @@ export default function HomePage() {
   useEffect(() => {
     const fetchAnnouncement = async () => {
       try {
-        const res = await fetch("/api/announcement");
+        const headers = {};
+        if (window.shopify) {
+          const token = await window.shopify.idToken();
+          headers["Authorization"] = `Bearer ${token}`;
+        } else {
+          console.warn("Shopify App Bridge not ready yet");
+        }
+        const res = await fetch("/api/announcement", { headers });
         if (!res.ok) throw new Error("Failed to fetch");
         const data = await res.json();
         setAnnouncement(data.text || "");
@@ -39,11 +46,16 @@ export default function HomePage() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      const headers = {
+        "Content-Type": "application/json",
+      };
+      if (window.shopify) {
+        const token = await window.shopify.idToken();
+        headers["Authorization"] = `Bearer ${token}`;
+      }
       const response = await fetch("/api/announcement", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers,
         body: JSON.stringify({ text: announcement }),
       });
 
