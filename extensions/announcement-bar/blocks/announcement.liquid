@@ -1,0 +1,39 @@
+{% assign announcement_text = shop.metafields.my_app.announcement.value %}
+
+{% if announcement_text != blank %}
+  <div class="shopify-announcement-bar-embed">
+    <div class="announcement-content">
+      {{ announcement_text }}
+    </div>
+  </div>
+{% endif %}
+
+<style>
+  .shopify-announcement-bar-embed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #5c6ac4; /* Shopify Purple/Indigo color */
+    color: #ffffff;
+    text-align: center;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 999999;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  
+  /* Add padding to the top of the store page so the floating bar doesn't overlap the menu */
+  body {
+    padding-top: 45px !important;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Announcement Bar",
+  "target": "body",
+  "settings": []
+}
+{% endschema %}
