@@ -156,7 +156,7 @@ app.use("/*", async (_req, res, _next) => {
     .send(
       readFileSync(join(STATIC_PATH, "index.html"))
         .toString()
-        .replace("%VITE_SHOPIFY_API_KEY%", process.env.SHOPIFY_API_KEY || "")
+        .replace("%SHOPIFY_API_KEY%", process.env.SHOPIFY_API_KEY || "")
     );
 });
 

@@ -22,12 +22,7 @@ export default function HomePage() {
   useEffect(() => {
     const fetchAnnouncement = async () => {
       try {
-        const headers = {};
-        if (window.shopify) {
-          const token = await window.shopify.idToken();
-          headers["Authorization"] = `Bearer ${token}`;
-        }
-        const res = await fetch("/api/announcement", { headers });
+        const res = await fetch("/api/announcement");
         if (!res.ok) throw new Error("Failed to fetch");
         const data = await res.json();
         setAnnouncement(data.text || "");
@@ -44,16 +39,11 @@ export default function HomePage() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const headers = {
-        "Content-Type": "application/json",
-      };
-      if (window.shopify) {
-        const token = await window.shopify.idToken();
-        headers["Authorization"] = `Bearer ${token}`;
-      }
       const response = await fetch("/api/announcement", {
         method: "POST",
-        headers,
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ text: announcement }),
       });
 
