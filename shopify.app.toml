@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "50395ad9c28ef355ed78152d48757081"
-application_url = "https://shopify.dev/apps/default-app-home"
+application_url = "https://announcement-bar-ruoa.onrender.com"
 embedded = true
 name = "Announcement Bar"
 
@@ -10,7 +10,10 @@ name = "Announcement Bar"
 scopes = ""
 
 [auth]
-redirect_urls = [ "https://shopify.dev/apps/default-app-home/api/auth" ]
+redirect_urls = [
+  "https://announcement-bar-ruoa.onrender.com/api/auth",
+  "https://announcement-bar-ruoa.onrender.com/api/auth/callback"
+]
 
 [webhooks]
 api_version = "2026-07"
