@@ -13,6 +13,10 @@
     "start": "node web/index.js"
   },
   "dependencies": {},
+  "devDependencies": {
+    "@shopify/cli": "^3.68.0",
+    "@shopify/app": "^3.68.0"
+  },
   "author": "nobita",
   "private": true,
   "workspaces": [
